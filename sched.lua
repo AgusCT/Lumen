@@ -77,7 +77,12 @@ local function emit_signal ( event, packed, ... ) --FIXME
       if type(taskd)~='table' then print (debug.traceback()) end
       if taskd.waitingfor == waitd and taskd.status=='ready' then
         taskd.waketime, taskd.waitingfor = nil, nil
-        step_task(taskd, event, ...)
+        if packed then 
+          local paramters = select(1, ...) 
+          step_task(taskd, event, unpack(paramters, 1, paramters.n)) 
+        else 
+          step_task(taskd, event, ...) 
+        end 
         if M.running_task and M.running_task.status == 'dead' then 
           -- the task was killed from a triggered task
           --print('the task was killed from a triggered task')
