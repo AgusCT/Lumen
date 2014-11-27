@@ -146,6 +146,14 @@ M.init = function(conf)
 	--- Task that emits signals.
 	M.task = native.task
 
+	--- Fork and run.
+	-- @function fork_run
+	-- @param child Child function to be run.
+	-- @param pattern Any of nixio or luasocket patterns.
+	-- @param handler Optional, either a handler function or a stream. 
+	-- @return a @{sktd} object
+	M.fork_run = native.fork_run
+
 	--- Suggested max buffer size for asynchronous sending.
 	-- Must be set before first call to async send. Defaults to 1mb.
 	M.ASYNC_SEND_BUFFER=1024^2 --1mb

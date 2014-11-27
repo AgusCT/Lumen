@@ -391,6 +391,54 @@ M.init = function(conf)
     end
   end)
 
+	M.fork_run = function ( child, pattern, handler )
+
+        local function fork (child)
+            local fdi, fdo = nixio.pipe()
+            local pid = nixio.fork()
+            if pid > 0 then 
+                --parent
+                fdo:close()
+                return fdi
+            else
+                --child
+                fdi:close()
+                while true do
+                    ret = {child()}
+                    string = nil
+                    for _, v in ipairs(ret) do
+                        if string then
+                            string = string .. ',' .. v
+                        else
+                            string = v
+                        end
+                    end
+                    if not fdo:write(string) then
+                        os.exit()
+                    end
+                end
+            end
+        end
+
+        local sktd = init_sktd ({
+            pattern =  normalize_pattern(pattern),
+            handler = handler,
+            fd = fork(child),
+        })
+
+        if not sktd.fd then 
+            return 
+        end
+        
+        sktd.events = {data = sktd.fd}
+        if sktd.pattern == '*l' and handler == 'stream' then 
+            sktd.pattern = nil 
+        end
+
+        register_client(sktd)
+        return sktd
+    end
+
 	return M
 end
 
